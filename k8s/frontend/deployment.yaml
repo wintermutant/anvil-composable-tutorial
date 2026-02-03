@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: wintermutant/anvil-tutorial-frontend:v1
+          image: wintermutant/anvil-tutorial-frontend:v2
           ports:
             - containerPort: 3000
           resources:
