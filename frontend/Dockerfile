@@ -1,14 +1,16 @@
-FROM node:22.16.0-alpine AS builder
+# Build stage runs on native platform (ARM64) to avoid QEMU issues with esbuild
+FROM --platform=$BUILDPLATFORM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json .
-RUN npm install
+COPY package*.json ./
+RUN npm ci
 
 COPY . .
 RUN npm run build
 
-FROM node:22.16.0-alpine
+# Runtime stage is multi-arch (JS output is portable)
+FROM node:22-alpine
 
 WORKDIR /app
 
