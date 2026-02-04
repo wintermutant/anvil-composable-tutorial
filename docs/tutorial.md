@@ -1,8 +1,6 @@
 # Deploying a Full-Stack Application on Anvil Composable with Kubernetes
 
-A complete, user-friendly guide to making your application live and accessible to anyone with internet access. We will
-walk through an example application with 3 separate components (Svelte frontend, FastAPI backend, and MongoDB database)
-on Anvil Composable using Kubernetes.
+A complete, user-friendly guide to making your application live and accessible to anyone with internet access. We will walk through an example application with 3 separate components (Svelte frontend, FastAPI backend, and MongoDB database) on Anvil Composable using Kubernetes.
 
 - [Deploying a Full-Stack Application on Anvil Composable with Kubernetes](#deploying-a-full-stack-application-on-anvil-composable-with-kubernetes)
   - [Goal of this tutorial](#goal-of-this-tutorial)
