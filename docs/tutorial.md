@@ -59,32 +59,25 @@ on Anvil Composable using Kubernetes.
 
 ## Goal of this tutorial
 
-The goal is to showcase how to take a web-app you made on your computer and make it live and accessible to anyone in the
-world with internet. We call this process 'deployment', as we want to *deploy* our app onto Anvil Composable.
+The goal is to showcase how to take a web-app you made on your computer and make it live and accessible to anyone in the world with internet. We call this process 'deployment', as we want to *deploy* our app onto Anvil Composable.
 
 ## Intuition
 
 ### Accessing our app
 
-When people access our web-app (app being viewed in your browser), Anvil Composable takes care of all the minutiae.
-Imagine if you tried to use your personal computer to host your app: each time people access the app, your computer will
-receive network traffic and have to provide, or *serve*, the appropriate content to the user. Further, your computer
-would have to be powered on and connected to the internet at all times, otherwise people couldn't access our app.
+When people access our web-app (app being viewed in your browser), Anvil Composable takes care of all the minutiae. Imagine if you tried to use your personal computer to host your app: each time people access the app, your computer will receive network traffic and have to provide, or *serve*, the appropriate content to the user. 
 
-Anvil Composable, among many other things, provides a stable server to ensure users of our app can always access our
-app. Kubernetes is the software layer Anvil Composable (AC) uses that automates deployment, scaling, and other aspects
-of our app. For example, if millions of people start using our app, we most likely want to replicate more instances of
-our app so we can serve more people concurrently (at the same time). This would require adding compute resources (CPUs,
-perhaps) so we can replicate many copies of our app for people to use.
+Further, your computer would have to be powered on and connected to the internet at all times, otherwise people couldn't access our app. Anvil Composable, among many other things, provides a stable server to ensure users of our app can always access our app.
 
-Further, Anvil Composable is a great place to host your app because it can easily connect to the compute power of the Anvil
-supercompute cluster.
+Kubernetes is the software layer Anvil Composable (AC) uses that automates deployment, scaling, and other aspects
+of our app. For example, if millions of people start using our app, we most likely want to replicate more instances of our app so we can serve more people concurrently (at the same time). This would require adding compute resources (CPUs, perhaps) so we can replicate many copies of our app for people to use.
+
+Further, Anvil Composable is a great place to host your app because it can easily connect to the compute power of the Anvil supercompute cluster.
 
 ### Architecture of an example app (Services)
 
 A common format for an app is to have 3 separate components: 1 for the frontend, 1 for the backend, and 1 for the
-database. This keeps logic separate and allows the developer to make incremental changes to each independent component
-separately. Let's dive into an example.
+database. This keeps logic separate and allows the developer to make incremental changes to each independent component separately. Let's dive into an example.
 
 Say you create a python script that takes in an argument for your *full name* and then prints out a greeting to you.
 ```bash
@@ -92,43 +85,33 @@ $ python greet.py --full-name Annie Anvil
 >>> Hello, Annie Anvil! It is nice to meet you
 ```
 
-Great, you can run this on the command line and it works. But what if we want people to be able to interact with this
-script in the browser? We could create what we call a 'frontend', which defines what we see in our browser (in our
-example of a web-app). We will dive into the details later, but essentially the frontend is called a *service* because
-it needs to always monitor the url in our browser and *serve* the appropriate content.
+Great, you can run this on the command line and it works. But what if we want people to be able to interact with this script in the browser? We could create what we call a 'frontend', which defines what we see in our browser (in our example of a web-app). We will dive into the details later, but essentially the frontend is called a *service* because it needs to always monitor the url in our browser and *serve* the appropriate content.
 
-For example, if we navigate to ```http://localhost:5173/home``` we want to show our home page. Let's imagine we have a
-frontend and we run it via ```npm run``` (we will learn about this later); now we have a *frontend service* running.
-This is what listens on a specific url and port (e.g., http://localhost:5173) and will provide the content for each
-route (e.g., /home).
+For example, if we navigate to ```http://localhost:5173/home``` we want to show our home page. Let's imagine we have a frontend and we run it via ```npm run``` (we will learn about this later); now we have a *frontend service* running.
 
-Imagine our frontend has a home page with a button that says **enter name** and once you click **Submit**, the browser
-prints a nice text blob saying ```Hello, <name>! It is nice to meet you```. Instead of writing the logic in our frontend
-(Javascript) app, we can use the logic from our ```greet.py``` to display this message. Our frontend will be in charge
-of collecting the *name* from our user, who writes in a box and clicks Submit. Then the frontend will **talk to our
-backend**, essentially inserting the *name* into the script:
+This is what listens on a specific url and port (e.g., http://localhost:5173) and will provide the content for each route (e.g., /home).
+
+Imagine our frontend has a home page with a button that says **enter name** and once you click **Submit**, the browser prints a nice text blob saying ```Hello, <name>! It is nice to meet you```. Instead of writing the logic in our frontend (Javascript, for example) app, we can use the logic from our ```greet.py``` to display this message.
+
+Our frontend will be in charge o/rom our user, who writes in a box and clicks Submit. Then the frontend will **talk to our backend**, essentially inserting the *name* into the script:
 
 ```bash
 $ python greet.py --full-name <value-collected-from-frontend>
 $ python greet.py --full-name Annie Anvil # user wrote Annie Anvil in browser
 ```
 
-So we outlined how a user goes to a browser page (frontend), writes their name in a text box, the frontend communicates
-this information to the backend, and then the backend runs the program and provides the greeting. Next, we need the
-backend to respond, or communicate back to the frontend with the *output* from running greet.py, which is ```Hello,
-Annie Anvil! It is nice to meet you```. Finally, the frontend receives this data and displays it for the user.
+So we outlined how a user goes to a browser page (frontend), writes their name in a text box, the frontend communicates this information to the backend, and then the backend runs the program and provides the greeting. 
 
-Just like our frontend, we call our backend a *service* (even if it just consists of 1 python script) because it needs a
-mechanism to listen and respond to *requests* for doing work. Our example of doing work means listening for a
---full-name to be provided and then running the greet.py script with the --full-name <value provided> parameters. Later
-on, we will talk about how to turn our backend from 1 (or many) static scripts into a proper service.
+Next, we need the backend to respond, or communicate back to the frontend with the *output* from running greet.py, which is ```Hello, Wintermute! It is nice to meet you```. Finally, the frontend receives this data and displays it for the user.
+
+Just like our frontend, we call our backend a *service* (even if it just consists of 1 python script) because it needs a mechanism to listen and respond to *requests* for doing work. Our example of doing work means listening for a --full-name to be provided and then running the greet.py script with the --full-name <value provided> parameters. Later on, we will talk about how to turn our backend from 1 (or many) static scripts into a proper service.
 
 Now let's add 1 more service to complete our 3-service app: a database service. Let's say we want to **store** the
 --full-name every time people come to our app, where do we put it? This is where the database comes into play. Our
-database service will simply be a database where we can store and retrieve data as requests come in (this is why we call
-it a service, as just like our frontend and backend, it must have a way to listen to requests).
+database service will simply be a database where we can store and retrieve data as requests come in (this is why we call it a service, as just like our frontend and backend, it must have a way to listen to requests).
 
 Our workflow thus will be:
+
 1. user goes to a browser page and our *frontend serves* them the home page
 2. they type in their name
 3. *frontend communicates name to the backend*
@@ -138,10 +121,9 @@ Our workflow thus will be:
    2. *communicates output to frontend*
 6. *frontend receives output* and serves the content to the web browser, showing the user their greeting!
 
-Imagine the frontend has another page, called ```/old-greetings```. Here, the frontend could bypass the backend and
-simply communicate with the database, asking for all previous greetings that are stored. Once it receives a response
-from the database, it can render all the previous greetings on the page. Although, oftentimes the database service is
-only accessible to the backend for security reasons. In this case, the logic would flow as follows:
+Imagine the frontend has another page, called ```/old-greetings```. Here, the frontend could bypass the backend and simply communicate with the database, asking for all previous greetings that are stored. Once it receives a response from the database, it can render all the previous greetings on the page. Although, oftentimes the database service is only accessible to the backend for security reasons.
+
+In this case, the logic would flow as follows:
 
 1. User navigates to ```/old-greetings``` on the browser (frontend serves content)
 2. Frontend **requests** backend that it needs old greetings
@@ -188,7 +170,7 @@ An Ingress is a Kubernetes resource that defines:
 - Which URLs your application is available at
 - Which Services handle incoming requests
 
-For example, we might configure an Ingress so that requests to: ```example.anvilcloud.rcac.purdue.edu``` are routed to our **frontend Service**, which then serves the homepage.
+For example, we might configure an Ingress so that requests to: ```wintermutant.anvilcloud.rcac.purdue.edu``` are routed to our **frontend Service**, which then serves the homepage.
 
 Using our analogy:
 - Pods are houses
@@ -265,14 +247,14 @@ To avoid pushing images to a registry during local development, you can build im
 
 ```bash
 eval $(minikube docker-env)
+# Run this command in each new terminal session, or add it to your shell profile.
 ```
 
 Now any `docker build` commands will build images inside minikube, making them immediately available to your pods.
 
 !!! note
-    I do not personally like to do this, as I prefer to point to Dockerhub. Later in the tutorial, I will reference pointing to Dockerhub. If you choose minikube's Docker, then you may have to slightly adjust your commands when pushing/pulling and pointing to your containers.
+    For this tutorial, I do not personally like to do this, as I prefer to point to Dockerhub. Later in the tutorial, I will reference pointing to Dockerhub. If you choose minikube's Docker, then you may have to slightly adjust your commands when pushing/pulling and pointing to your containers.
 
-> **Note:** Run this command in each new terminal session, or add it to your shell profile.
 
 ### Architecture Overview
 
@@ -356,7 +338,7 @@ Our application follows a three-tier architecture:
 
 **Directory Overview:**
 - **docker/backend/**: FastAPI backend application and Dockerfile
-- **fe_ignore_pls/**: Svelte frontend application and Dockerfile
+- **frontend/**: Svelte frontend application and Dockerfile
 - **k8s/**: Kubernetes manifests that we'll apply using `kubectl`
 
 In this tutorial, we'll walk through deploying each component step-by-step using `kubectl` commands. This hands-on approach helps you understand how each piece works. Later, you could automate the full deployment with a single manifest or a script.
@@ -559,6 +541,8 @@ With `minikube tunnel` running, access the app at:
 - Frontend: http://localhost/
 - Backend API: http://localhost/api/names
 
+At this point, you should see a little guest book app where the fronten displays the interface and the backend takes in the name and stores it in the database.
+
 **6. Verify everything is working:**
 
 ```bash
@@ -700,7 +684,7 @@ Visit [composable.anvil.rcac.purdue.edu](https://composable.anvil.rcac.purdue.ed
 **2. Download your kubeconfig:**
 
 - Once logged in, click on Anvil (AVL) in the left navigation bar
-- In the top right corner, you will an icon that looks like a blacked-out piece of paper with a corner folded over. When you hover over it, it should say 'Download KubeConfig'
+- In the top right corner, you will see an icon that looks like a blacked-out piece of paper with a corner folded over. When you hover over it, it should say 'Download KubeConfig'
 - Select **"Download kubeconfig"** (or navigate to the Kubernetes section)
 - Save the file to `~/.kube/anvil.yaml` (create the `~/.kube` folder if it doesn't exist)
 
@@ -719,7 +703,7 @@ kubectl config current-context
 
 If you see cluster information and namespaces listed, you're ready to deploy. If you get an "unauthenticated" error, double-check that:
 - The `KUBECONFIG` variable is set: `echo $KUBECONFIG`
-- The file exists at that path: `ls -la $KUBECONFIG`
+- The file exists at that path `~/.kube/anvil.yaml`
 - Your token hasn't expired (try downloading a fresh kubeconfig)
 
 ### Step 2: Create Namespace
@@ -730,6 +714,7 @@ For this part, due to permissions, we will need to create our namespace using th
 
 Visit [Anvil Rancher](https://composable.anvil.rcac.purdue.edu) and click Cluster > Projects/Namespaces. Create a namespace with:
 - **Project** = Select your project from the dropdown (**IMPORTANT:** Do not leave this blank! You need to assign the namespace to a project to have deployment permissions)
+  - Your project should be the same as the one you use for research computing jobs with SLURM
 - **Name** = `<your-username>-tutorial` (e.g., `wintermutant-tutorial`)
 - CPU reservation = 1000 mCPUs
 - CPU limit = 1000 mCPUs
@@ -760,7 +745,7 @@ kubectl get pods
 # Should show all pods
 ```
 
-> **Note:** The manifest files do not specify a namespace, so they will deploy to whatever namespace you have set as your current context.
+> **Note:** The manifest files do not specify a namespace, so they will deploy to whatever namespace you have set as your current context. If you get an error while running this command, it means your kube config is not pointing to your namespace + project correctly and you have permission issues. Please try to go back and figure out the issue or contact Anvil Support.
 
 ### Step 3: Deploy the Database
 
@@ -800,6 +785,8 @@ kubectl get svc frontend-svc
 ```
 
 ### Step 6: Deploy the Ingress
+
+**Change line 8**: `- host: wintermutant.anvilcloud.rcac.purdue.edu` and have it point to a domain of your choice that ends with `.anvilcloud.rcac.purdue.edu`. If you are following along on a different cluster or service, you'll have to adjust the suffix as necessary.
 
 ```bash
 kubectl apply -f k8s/ingress-prod.yaml
@@ -844,6 +831,8 @@ kubectl logs <pod-name>
 # Describe pod for more details
 kubectl describe pod <pod-name>
 ```
+
+Visit <url>.anvilcloud.rcac.purdue.edu and see your app live in action! Congrats, you just deployed a multiservice cloud application on your own!
 
 ## Troubleshooting
 
